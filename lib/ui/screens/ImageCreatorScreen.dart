@@ -6,13 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:meme_generator/Constants/Constants.dart';
 import 'package:flutter/rendering.dart';
 import 'package:gallery_saver/gallery_saver.dart';
+import 'package:meme_generator/model/MemeModel.dart';
 import 'package:meme_generator/ui/widget/ImageCard.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ImageCreatorScreen extends StatefulWidget {
-  final String url;
-  ImageCreatorScreen({this.url});
+  final MemeModel memeModel;
+  ImageCreatorScreen({this.memeModel});
 
   @override
   _ImageCreatorScreenState createState() => _ImageCreatorScreenState();

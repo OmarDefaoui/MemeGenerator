@@ -5,88 +5,105 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SelectImage extends StatefulWidget {
-  final CropAspectRatio ratio;
-  SelectImage({this.ratio});
-
   @override
   _SelectImageState createState() => _SelectImageState();
 }
 
 class _SelectImageState extends State<SelectImage> {
   File _image;
-  double _width;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  TextEditingController _captionController = TextEditingController();
+  String _caption = '';
+  bool _isCapturing = false;
 
   @override
   Widget build(BuildContext context) {
-    _width = MediaQuery.of(context).size.width;
+    final _width = MediaQuery.of(context).size.width;
+    final _height = MediaQuery.of(context).size.height;
 
-    return Container(
-      width: _width,
-      height: _width,
-      child: Stack(
-        children: <Widget>[
-          Positioned.fill(
-            child: Container(
-              alignment: Alignment.center,
-              child: InkWell(
-                child: Row(
-                  children: <Widget>[
-                    Image(
-                      image: _displayImage(),
-                    ),
-                  ],
-                ),
-                onTap: _handleImage,
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Scaffold(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          child: Container(
+            child: Column(
               children: <Widget>[
-                InkWell(
-                  onTap: () {},
-                  child: Icon(
-                    Icons.camera_alt,
-                    size: 120,
+                _isCapturing
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: LinearProgressIndicator(
+                          backgroundColor: Colors.blue.shade200,
+                          valueColor: AlwaysStoppedAnimation(Colors.blue),
+                        ),
+                      )
+                    : SizedBox.shrink(),
+                GestureDetector(
+                  onTap: _showSelectImageDialog,
+                  child: Container(
+                    height: _width,
+                    width: _width,
+                    color: Colors.grey.shade300,
+                    child: _image == null
+                        ? Icon(
+                            Icons.add_photo_alternate,
+                            color: Colors.white,
+                            size: 150,
+                          )
+                        : Image(
+                            image: FileImage(_image),
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
-                InkWell(
-                  onTap: () {},
-                  child: Icon(
-                    Icons.photo,
-                    size: 120,
+                SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: TextField(
+                    controller: _captionController,
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: 'Caption',
+                    ),
+                    onChanged: (input) => _caption = input,
                   ),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  _displayImage() {
-    if (_image != null)
-      return FileImage(_image);
-    else
-      return AssetImage(
-        'assets/add.png',
-      );
+  _showSelectImageDialog() {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: Text('Add photo'),
+          children: <Widget>[
+            SimpleDialogOption(
+              child: Text('Take Photo'),
+              onPressed: () => _handleImage(ImageSource.camera),
+            ),
+            SimpleDialogOption(
+              child: Text('Choose from gallery'),
+              onPressed: () => _handleImage(ImageSource.gallery),
+            ),
+            SimpleDialogOption(
+              child: Text('Cancel', style: TextStyle(color: Colors.redAccent)),
+              onPressed: () => Navigator.pop(context, false),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  _handleImage() async {
-    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+  _handleImage(ImageSource source) async {
+    Navigator.of(context, rootNavigator: true).pop();
+    File imageFile = await ImagePicker.pickImage(source: source);
 
     if (imageFile != null) {
       imageFile = await _cropImage(imageFile);
@@ -103,5 +120,14 @@ class _SelectImageState extends State<SelectImage> {
     );
 
     return croppedImage;
+  }
+
+  _getScreenChot() async {
+    if (!_isCapturing && _image != null) {
+      _isCapturing = true;
+
+      //take screenchot and return image
+      _isCapturing = false;
+    }
   }
 }

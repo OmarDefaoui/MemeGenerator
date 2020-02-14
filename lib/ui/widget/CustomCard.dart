@@ -1,13 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:meme_generator/model/MemeModel.dart';
 import 'package:meme_generator/ui/screens/ImageCreatorScreen.dart';
 
 //card where we display memes
 class CustomCard extends StatelessWidget {
-  final String imageUrl;
+  final MemeModel memeModel;
   final double width;
   CustomCard({
-    @required this.imageUrl,
+    @required this.memeModel,
     @required this.width,
   });
 
@@ -26,7 +27,7 @@ class CustomCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(5),
             child: InkWell(
               child: Hero(
-                tag: imageUrl,
+                tag: memeModel.url,
                 child: CachedNetworkImage(
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
@@ -35,13 +36,13 @@ class CustomCard extends StatelessWidget {
                     alignment: Alignment.center,
                   ),
                   errorWidget: (context, url, error) => Icon(Icons.error),
-                  imageUrl: imageUrl,
+                  imageUrl: memeModel.url,
                 ),
               ),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ImageCreatorScreen(url: imageUrl),
+                    builder: (context) => ImageCreatorScreen(memeModel: memeModel),
                   ),
                 );
               },

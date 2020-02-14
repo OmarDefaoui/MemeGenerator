@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:meme_generator/model/MemeModel.dart';
 import 'package:meme_generator/ui/widget/CustomCard.dart';
 
 class TemplatesScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class _TemplatesScreenState extends State<TemplatesScreen>
     with AutomaticKeepAliveClientMixin {
   int _totalItems = 0, _itemToDisplayCount = 25;
   bool isDataLoaded = false, _isLoadingMore = false, _isError = false;
-  List data = List();
+  List<MemeModel> data = List<MemeModel>();
   ScrollController _scrollController = ScrollController();
 
   @override
@@ -65,10 +66,10 @@ class _TemplatesScreenState extends State<TemplatesScreen>
             childAspectRatio: 0.8,
           ),
           itemBuilder: (context, index) {
-            String imageUrl = data[index]['url'];
+            MemeModel memeModel = data[index];
 
             return CustomCard(
-              imageUrl: imageUrl,
+              memeModel: memeModel,
               width: _width,
             );
           },
@@ -99,7 +100,15 @@ class _TemplatesScreenState extends State<TemplatesScreen>
       });
       return "error";
     } finally {
-      data.addAll(convertDataToJson['data']['memes']);
+      List temp = convertDataToJson['data']['memes'];
+
+      for (var item in temp) {
+        data.add(MemeModel(
+          id: int.parse(item['id']),
+          name: item['name'],
+          url: item['url'],
+        ));
+      }
       _totalItems = data.length;
       print('total items: $_totalItems');
       setState(() {
