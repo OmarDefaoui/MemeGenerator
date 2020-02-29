@@ -25,7 +25,8 @@ class DBProvider {
       // When the database is first created, create a table to store memes.
       onCreate: (db, version) {
         return db.execute(
-          "CREATE TABLE Memes(id INTEGER PRIMARY KEY, name TEXT, url TEXT)",
+          "CREATE TABLE Memes(id INTEGER PRIMARY KEY, name TEXT, url TEXT, width INTEGER, "
+          "height INTEGER, box_count INTEGER)",
         );
       },
       // Set the version. This executes the onCreate function and provides a
@@ -58,6 +59,9 @@ class DBProvider {
         id: maps[i]['id'],
         name: maps[i]['name'],
         url: maps[i]['url'],
+        width: maps[i]['width'],
+        height: maps[i]['height'],
+        boxCount: maps[i]['box_count'],
       );
     });
   }

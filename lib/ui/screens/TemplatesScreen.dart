@@ -107,6 +107,9 @@ class _TemplatesScreenState extends State<TemplatesScreen>
           id: int.parse(item['id']),
           name: item['name'],
           url: item['url'],
+          width: item['width'],
+          height: item['height'],
+          boxCount: item['box_count'],
         ));
       }
       _totalItems = data.length;

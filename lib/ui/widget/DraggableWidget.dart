@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 class DraggableWidget extends StatefulWidget {
   final Offset offset;
 
-  DraggableWidget({this.offset});
+  DraggableWidget({
+    this.offset,
+  });
 
   @override
   _DraggableWidgetState createState() => _DraggableWidgetState();
@@ -19,6 +21,7 @@ class _DraggableWidgetState extends State<DraggableWidget> {
 
   @override
   Widget build(BuildContext context) {
+    double _height = MediaQuery.of(context).size.height;
     return Positioned(
       top: offset.dy,
       left: offset.dx,
@@ -35,7 +38,7 @@ class _DraggableWidgetState extends State<DraggableWidget> {
         ),
         onDraggableCanceled: (v, o) {
           setState(() {
-            offset = o;
+            offset = Offset(o.dx, o.dy - (_height / 28.5));
           });
         },
         childWhenDragging: SizedBox.shrink(),
