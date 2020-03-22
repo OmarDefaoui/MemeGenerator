@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:meme_generator/Constants/Constants.dart';
 import 'package:flutter/rendering.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-import 'package:meme_generator/ui/widget/ImageCard.dart';
+import 'package:meme_generator/ui/widget/CollageImageCard.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -55,10 +55,10 @@ class _CollageScreenState extends State<CollageScreen> {
                   physics: BouncingScrollPhysics(),
                   child: Wrap(
                     children: <Widget>[
-                      ImageCard(index: 0),
-                      ImageCard(index: 1),
-                      ImageCard(index: 2),
-                      ImageCard(index: 3),
+                      CollageImageCard(index: 0),
+                      CollageImageCard(index: 1),
+                      CollageImageCard(index: 2),
+                      CollageImageCard(index: 3),
                     ],
                   ),
                 ),

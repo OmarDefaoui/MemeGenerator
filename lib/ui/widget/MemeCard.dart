@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:meme_generator/model/MemeModel.dart';
 import 'package:meme_generator/ui/screens/ImageCreatorScreen.dart';
 
-//card where we display memes
-class CustomCard extends StatelessWidget {
+//card where we display memes in template and favorite screen
+class MemeCard extends StatelessWidget {
   final MemeModel memeModel;
   final double width;
-  CustomCard({
+  MemeCard({
     @required this.memeModel,
     @required this.width,
   });

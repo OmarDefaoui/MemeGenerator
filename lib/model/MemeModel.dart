@@ -14,8 +14,8 @@ class MemeModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'url': url,
       'name': name,
+      'url': url,
       'width': width,
       'height': height,
       'box_count': boxCount,

@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ImageCard extends StatefulWidget {
+class CollageImageCard extends StatefulWidget {
   final int index;
-  ImageCard({this.index});
+  CollageImageCard({this.index});
 
   @override
-  _ImageCardState createState() => _ImageCardState();
+  _CollageImageCardState createState() => _CollageImageCardState();
 }
 
-class _ImageCardState extends State<ImageCard> {
+class _CollageImageCardState extends State<CollageImageCard> {
   File _image;
   double _width;
   TextEditingController _textController = TextEditingController();

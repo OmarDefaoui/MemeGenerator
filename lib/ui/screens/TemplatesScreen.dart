@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:meme_generator/model/MemeModel.dart';
-import 'package:meme_generator/ui/widget/CustomCard.dart';
+import 'package:meme_generator/ui/widget/MemeCard.dart';
 
 class TemplatesScreen extends StatefulWidget {
   final String url = 'https://api.imgflip.com/get_memes';
@@ -68,7 +68,7 @@ class _TemplatesScreenState extends State<TemplatesScreen>
           itemBuilder: (context, index) {
             MemeModel memeModel = data[index];
 
-            return CustomCard(
+            return MemeCard(
               memeModel: memeModel,
               width: _width,
             );
@@ -105,8 +105,8 @@ class _TemplatesScreenState extends State<TemplatesScreen>
       for (var item in temp) {
         data.add(MemeModel(
           id: int.parse(item['id']),
-          name: item['name'],
           url: item['url'],
+          name: item['name'],
           width: item['width'],
           height: item['height'],
           boxCount: item['box_count'],

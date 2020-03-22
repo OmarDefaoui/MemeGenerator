@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meme_generator/database/DBProvider.dart';
 import 'package:meme_generator/model/MemeModel.dart';
-import 'package:meme_generator/ui/widget/CustomCard.dart';
+import 'package:meme_generator/ui/widget/MemeCard.dart';
 
 class FavoriteScreen extends StatefulWidget {
   @override
@@ -64,7 +64,7 @@ class _FavoriteScreenState extends State<FavoriteScreen>
           itemBuilder: (context, index) {
             MemeModel memeModel = data[index];
 
-            return CustomCard(
+            return MemeCard(
               memeModel: memeModel,
               width: _width,
             );

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:meme_generator/ui/widget/BordredText.dart';
 
 class DraggableWidget extends StatefulWidget {
   final Offset offset;
+  final int id;
 
   DraggableWidget({
     this.offset,
+    this.id,
   });
 
   @override
@@ -13,6 +16,9 @@ class DraggableWidget extends StatefulWidget {
 
 class _DraggableWidgetState extends State<DraggableWidget> {
   Offset offset = Offset(0.0, 0.0);
+  final TextEditingController _textEditingController = TextEditingController();
+  double _width, _height;
+
   @override
   void initState() {
     super.initState();
@@ -20,28 +26,49 @@ class _DraggableWidgetState extends State<DraggableWidget> {
   }
 
   @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    double _height = MediaQuery.of(context).size.height;
+    _width = MediaQuery.of(context).size.width;
+    _height = MediaQuery.of(context).size.height;
+
     return Positioned(
       top: offset.dy,
       left: offset.dx,
       child: Draggable(
-        child: Container(
-          width: 100,
-          height: 100,
-          color: Colors.blue,
-        ),
-        feedback: Container(
-          width: 100,
-          height: 100,
-          color: Colors.blue,
-        ),
+        child: _textBox(),
+        feedback: _textBox(),
         onDraggableCanceled: (v, o) {
           setState(() {
             offset = Offset(o.dx, o.dy - (_height / 28.5));
           });
         },
         childWhenDragging: SizedBox.shrink(),
+      ),
+    );
+  }
+
+  Widget _textBox() {
+    return Container(
+      width: _width / 2,
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      // color: Colors.red,
+      child: Material(
+        color: Colors.transparent,
+        child: BorderedText(
+          textController: _textEditingController,
+          id: widget.id,
+          fontSize: _width / 10,
+          fontWeight: FontWeight.w500,
+          strokeColor: Colors.white,
+          textColor: Colors.black,
+          strokeWidth: 2,
+        ),
       ),
     );
   }

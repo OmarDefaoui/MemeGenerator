@@ -21,11 +21,11 @@ class DBProvider {
       // Set the path to the database. Note: Using the `join` function from the
       // `path` package is best practice to ensure the path is correctly
       // constructed for each platform.
-      join(await getDatabasesPath(), 'Memes.db'),
+      join(await getDatabasesPath(), 'Meme.db'),
       // When the database is first created, create a table to store memes.
       onCreate: (db, version) {
         return db.execute(
-          "CREATE TABLE Memes(id INTEGER PRIMARY KEY, name TEXT, url TEXT, width INTEGER, "
+          "CREATE TABLE Meme(id INTEGER PRIMARY KEY, name TEXT, url TEXT, width INTEGER, "
           "height INTEGER, box_count INTEGER)",
         );
       },
@@ -40,7 +40,7 @@ class DBProvider {
     // Get a reference to the database.
     final Database db = await database;
     await db.insert(
-      'Memes',
+      'Meme',
       meme.toMap(),
     );
   }
@@ -51,7 +51,7 @@ class DBProvider {
     final Database db = await database;
 
     // Query the table for all The memes.
-    final List<Map<String, dynamic>> maps = await db.query('Memes');
+    final List<Map<String, dynamic>> maps = await db.query('Meme');
 
     // Convert the List<Map<String, dynamic> into a List<memesmodel>.
     return List.generate(maps.length, (i) {
@@ -66,13 +66,22 @@ class DBProvider {
     });
   }
 
-  Future<void> deleteDog(int id) async {
+  Future<bool> isMemeExists(int id) async {
+    // Get a reference to the database.
+    final db = await database;
+
+    var queryResult = await db.rawQuery('SELECT id FROM Meme WHERE id=$id');
+
+    return queryResult.isNotEmpty;
+  }
+
+  Future<void> deleteMeme(int id) async {
     // Get a reference to the database.
     final db = await database;
 
     // Remove the meme from the Database.
     await db.delete(
-      'Memes',
+      'Meme',
       // Use a `where` clause to delete a specific meme.
       where: "id = ?",
       // Pass the meme's id as a whereArg to prevent SQL injection.
