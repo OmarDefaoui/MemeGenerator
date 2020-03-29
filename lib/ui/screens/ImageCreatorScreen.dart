@@ -31,11 +31,12 @@ class _ImageCreatorScreenState extends State<ImageCreatorScreen>
   @override
   void initState() {
     super.initState();
-    //_checkIfExistsInFavorite();
-    Future.microtask(
-      () => Provider.of<DBHelper>(context, listen: false)
-          .checkIfExistsInFavorite(widget.memeModel.id),
-    );
+    //if id==null: we are loading a local image from camera
+    if (widget.memeModel.id != null)
+      Future.microtask(
+        () => Provider.of<DBHelper>(context, listen: false)
+            .checkIfExistsInFavorite(widget.memeModel.id),
+      );
 
     _animationController = AnimationController(
       vsync: this,
@@ -202,23 +203,30 @@ class _ImageCreatorScreenState extends State<ImageCreatorScreen>
                                           ),
                                           Row(
                                             children: <Widget>[
-                                              IconButton(
-                                                icon: providerDB
-                                                        .isSavedToFavorite
-                                                    ? Icon(
-                                                        Icons.favorite,
-                                                        color: Colors.red,
-                                                      )
-                                                    : Icon(
-                                                        Icons.favorite_border),
-                                                onPressed: () => providerDB
-                                                        .isSavedToFavorite
-                                                    ? providerDB
-                                                        .removeFromFavorite(
-                                                            widget.memeModel.id)
-                                                    : providerDB.saveToFavorite(
-                                                        widget.memeModel),
-                                              ),
+                                              //don't show favorite button if it's a local image
+                                              (widget.memeModel.id != null)
+                                                  ? IconButton(
+                                                      icon: providerDB
+                                                              .isSavedToFavorite
+                                                          ? Icon(
+                                                              Icons.favorite,
+                                                              color: Colors.red,
+                                                            )
+                                                          : Icon(Icons
+                                                              .favorite_border),
+                                                      onPressed: () => providerDB
+                                                              .isSavedToFavorite
+                                                          ? providerDB
+                                                              .removeFromFavorite(
+                                                                  widget
+                                                                      .memeModel
+                                                                      .id)
+                                                          : providerDB
+                                                              .saveToFavorite(
+                                                                  widget
+                                                                      .memeModel),
+                                                    )
+                                                  : SizedBox.shrink(),
                                               IconButton(
                                                 icon: Icon(Icons.share),
                                                 onPressed: () =>
