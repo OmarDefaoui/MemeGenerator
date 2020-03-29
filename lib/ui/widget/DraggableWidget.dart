@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meme_generator/ui/widget/BordredText.dart';
 
 class DraggableWidget extends StatefulWidget {
   final Offset offset;
@@ -60,14 +59,23 @@ class _DraggableWidgetState extends State<DraggableWidget> {
       // color: Colors.red,
       child: Material(
         color: Colors.transparent,
-        child: BorderedText(
-          textController: _textEditingController,
-          id: widget.id,
-          fontSize: _width / 10,
-          fontWeight: FontWeight.w500,
-          strokeColor: Colors.white,
-          textColor: Colors.black,
-          strokeWidth: 2,
+        child: TextField(
+          controller: _textEditingController,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: 'Text ${widget.id}',
+            hintStyle: TextStyle(
+              color: Colors.blueGrey,
+            ),
+          ),
+          style: TextStyle(
+            fontSize: _width / 10,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+          ),
+          onChanged: (value) {
+            setState(() {});
+          },
         ),
       ),
     );

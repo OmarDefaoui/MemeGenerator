@@ -84,7 +84,6 @@ class _FavoriteScreenState extends State<FavoriteScreen>
   Future<String> getFavoriteMemes() async {
     print('fetch data call');
 
-    //data.addAll(convertDataToJson['data']['memes']);
     DBProvider db = DBProvider.db;
     data = await db.getMemes();
 

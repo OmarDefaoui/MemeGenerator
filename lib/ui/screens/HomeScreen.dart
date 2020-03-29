@@ -7,7 +7,9 @@ import 'package:meme_generator/ui/screens/FavoriteScreen.dart';
 import 'package:meme_generator/ui/screens/PhotoGalleryScreen.dart';
 import 'package:meme_generator/ui/screens/TemplatesScreen.dart';
 import 'package:meme_generator/utils/AdBuilder.dart';
+import 'package:meme_generator/utils/PermissionsHandler.dart';
 import 'package:meme_generator/utils/ShowAction.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -18,7 +20,10 @@ class _HomeScreenState extends State<HomeScreen> {
   PageController _pageController;
   static var _tabPages = <Widget>[
     TemplatesScreen(),
-    CollageScreen(),
+    Provider<PermissionsHandler>(
+      create: (context) => PermissionsHandler(),
+      child: CollageScreen(),
+    ),
     PhotoGalleryScreen(),
     FavoriteScreen(),
   ];

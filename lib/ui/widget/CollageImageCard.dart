@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:meme_generator/ui/widget/BordredText.dart';
 
 class CollageImageCard extends StatefulWidget {
   final int index;
@@ -53,7 +54,9 @@ class _CollageImageCardState extends State<CollageImageCard> {
             bottom: _width / 150,
             child: Container(
               alignment: Alignment.bottomCenter,
-              child: _textInputWithStroke(
+              child: BorderedText(
+                textController: _textController,
+                hintText: '',
                 fontSize: _width / 18,
                 fontWeight: FontWeight.w500,
                 strokeColor: Colors.black,
@@ -94,46 +97,6 @@ class _CollageImageCardState extends State<CollageImageCard> {
     );
 
     return croppedImage;
-  }
-
-  Widget _textInputWithStroke({
-    double fontSize,
-    FontWeight fontWeight,
-    double strokeWidth,
-    Color textColor: Colors.white,
-    Color strokeColor: Colors.black,
-  }) {
-    return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        Text(
-          _textController.text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            foreground: Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = strokeWidth
-              ..color = strokeColor,
-          ),
-        ),
-        TextField(
-          textAlign: TextAlign.center,
-          controller: _textController,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-          ),
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: textColor,
-          ),
-          onChanged: (value) {
-            setState(() {});
-          },
-        ),
-      ],
-    );
   }
 
   _displayText() {

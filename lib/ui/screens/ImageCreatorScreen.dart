@@ -1,22 +1,18 @@
-import 'dart:io';
-
-import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
-import 'package:meme_generator/Constants/Constants.dart';
-import 'package:meme_generator/database/DBProvider.dart';
+import 'package:meme_generator/database/DBHelper.dart';
 import 'package:meme_generator/model/MemeModel.dart';
 import 'package:meme_generator/ui/widget/DraggableWidget.dart';
 import 'package:meme_generator/ui/widget/FullScreenMeme.dart';
+import 'package:meme_generator/utils/PermissionsHandler.dart';
+import 'package:meme_generator/utils/SaveToGallery.dart';
+import 'package:meme_generator/utils/ShareImage.dart';
 import 'package:meme_generator/utils/ShowAction.dart';
-import 'package:gallery_saver/gallery_saver.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 
 class ImageCreatorScreen extends StatefulWidget {
-  final VoidCallback showBanner;
   final MemeModel memeModel;
   ImageCreatorScreen({
-    this.showBanner,
     this.memeModel,
   });
 
@@ -29,17 +25,17 @@ class _ImageCreatorScreenState extends State<ImageCreatorScreen>
   AnimationController _animationController;
   ScreenshotController screenshotController = ScreenshotController();
 
-  bool _isLoading = false,
-      _isSavedToGallery = false,
-      _isSavedToFavorite = false;
-
   //contains meme, and the required draggable widget
   List<Widget> _listStack = [];
 
   @override
   void initState() {
     super.initState();
-    _checkIfExistsInFavorite();
+    //_checkIfExistsInFavorite();
+    Future.microtask(
+      () => Provider.of<DBHelper>(context, listen: false)
+          .checkIfExistsInFavorite(widget.memeModel.id),
+    );
 
     _animationController = AnimationController(
       vsync: this,
@@ -66,13 +62,23 @@ class _ImageCreatorScreenState extends State<ImageCreatorScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //to avoid moving widgets when the keywboard was shown
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Theme.of(context).backgroundColor,
-      body: WillPopScope(
-        onWillPop: _onWillPop,
-        child: SafeArea(
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SaveToGallery>(
+          create: (context) => SaveToGallery(),
+        ),
+        ChangeNotifierProvider<ShareImage>(
+          create: (context) => ShareImage(),
+        ),
+        Provider<PermissionsHandler>(
+          create: (context) => PermissionsHandler(),
+        ),
+      ],
+      child: Scaffold(
+        //to avoid moving widgets when the keywboard was shown
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Theme.of(context).backgroundColor,
+        body: SafeArea(
           child: AnimatedBuilder(
             animation: _animationController,
             builder: (context, child) {
@@ -140,7 +146,6 @@ class _ImageCreatorScreenState extends State<ImageCreatorScreen>
                                   IconButton(
                                     icon: Icon(Icons.arrow_back),
                                     onPressed: () {
-                                      //widget.showBanner();
                                       Navigator.pop(context);
                                     },
                                   ),
@@ -167,48 +172,64 @@ class _ImageCreatorScreenState extends State<ImageCreatorScreen>
                                 ),
                               ],
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: _isLoading
-                                  ? Center(
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: <Widget>[
-                                        IconButton(
-                                          icon: Icon(
-                                            _isSavedToGallery
-                                                ? Icons.check_circle_outline
-                                                : Icons.save,
+                            child:
+                                Consumer3<SaveToGallery, ShareImage, DBHelper>(
+                              builder: (context, providerSave, providerShare,
+                                      providerDB, child) =>
+                                  Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: providerSave.isLoading ||
+                                        providerShare.isLoading
+                                    ? Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: <Widget>[
+                                          IconButton(
+                                            icon: Icon(
+                                              providerSave.isSavedToGallery
+                                                  ? Icons.check_circle_outline
+                                                  : Icons.save,
+                                            ),
+                                            onPressed: () => providerSave
+                                                .askForPermissionToSave(
+                                              context,
+                                              screenshotController,
+                                            ),
                                           ),
-                                          onPressed: _isSavedToGallery
-                                              ? () {}
-                                              : _askForPermission,
-                                        ),
-                                        Row(
-                                          children: <Widget>[
-                                            IconButton(
-                                              icon: _isSavedToFavorite
-                                                  ? Icon(
-                                                      Icons.favorite,
-                                                      color: Colors.red,
-                                                    )
-                                                  : Icon(Icons.favorite_border),
-                                              onPressed: _isSavedToFavorite
-                                                  ? _removeFromFavorite
-                                                  : _saveToFavorite,
-                                            ),
-                                            IconButton(
-                                              icon: Icon(Icons.share),
-                                              onPressed: _shareImage,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                          Row(
+                                            children: <Widget>[
+                                              IconButton(
+                                                icon: providerDB
+                                                        .isSavedToFavorite
+                                                    ? Icon(
+                                                        Icons.favorite,
+                                                        color: Colors.red,
+                                                      )
+                                                    : Icon(
+                                                        Icons.favorite_border),
+                                                onPressed: () => providerDB
+                                                        .isSavedToFavorite
+                                                    ? providerDB
+                                                        .removeFromFavorite(
+                                                            widget.memeModel.id)
+                                                    : providerDB.saveToFavorite(
+                                                        widget.memeModel),
+                                              ),
+                                              IconButton(
+                                                icon: Icon(Icons.share),
+                                                onPressed: () =>
+                                                    providerShare.shareImage(
+                                                        screenshotController),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                              ),
                             ),
                           ),
                         ),
@@ -222,139 +243,5 @@ class _ImageCreatorScreenState extends State<ImageCreatorScreen>
         ),
       ),
     );
-  }
-
-  Future<void> _checkIfExistsInFavorite() async {
-    print('check favorite call');
-
-    DBProvider db = DBProvider.db;
-    try {
-      bool _isExists = await db.isMemeExists(widget.memeModel.id);
-      if (_isExists)
-        setState(() {
-          _isSavedToFavorite = true;
-        });
-    } catch (e) {}
-  }
-
-  Future<void> _saveToFavorite() async {
-    print('save to favorite call');
-
-    DBProvider db = DBProvider.db;
-    try {
-      await db.insertMeme(widget.memeModel);
-      setState(() {
-        _isSavedToFavorite = true;
-      });
-    } catch (e) {}
-  }
-
-  Future<void> _removeFromFavorite() async {
-    print('remove from favorite call');
-
-    DBProvider db = DBProvider.db;
-    try {
-      await db.deleteMeme(widget.memeModel.id);
-      setState(() {
-        _isSavedToFavorite = false;
-      });
-    } catch (e) {}
-  }
-
-  _shareImage() async {
-    setState(() {
-      _isLoading = true;
-    });
-    screenshotController.capture().then((File image) async {
-      print("Capture Done");
-      File _image = image;
-
-      try {
-        await Share.file('Share', 'image_result.png',
-            _image.readAsBytesSync().buffer.asUint8List(), 'image/png',
-            text: '$shareBody');
-
-        setState(() {
-          _isLoading = false;
-        });
-      } catch (e) {
-        print('error: $e');
-      }
-    }).catchError((onError) {
-      print(onError);
-    });
-  }
-
-  _saveImageToGallery() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    screenshotController.capture().then((File image) async {
-      print("Capture Done");
-      File _image = image;
-      print('${_image.path}');
-
-      try {
-        GallerySaver.saveImage(_image.path).then((bool result) {
-          print('res: $result');
-          setState(() {
-            if (result) _isSavedToGallery = true;
-            _isLoading = false;
-          });
-        });
-      } catch (e) {
-        print('error: $e');
-      }
-    }).catchError((onError) {
-      print('error: $onError');
-      print(onError);
-    });
-  }
-
-  _askForPermission() async {
-    Map<PermissionGroup, PermissionStatus> permissions =
-        await PermissionHandler().requestPermissions([PermissionGroup.storage]);
-
-    print('${permissions[PermissionGroup.storage]}');
-    if (permissions[PermissionGroup.storage] != PermissionStatus.granted)
-      _showConfirmationDialog();
-    else
-      _saveImageToGallery();
-  }
-
-  _showConfirmationDialog() {
-    showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) {
-          return AlertDialog(
-            content: Text(
-              "This permission is required to save images to gallery.",
-            ),
-            title: Text("Warning !"),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("No"),
-                onPressed: () {
-                  Navigator.pop(context, false);
-                },
-              ),
-              FlatButton(
-                child: Text("Accept"),
-                onPressed: () {
-                  Navigator.pop(context, true);
-                  _askForPermission();
-                },
-              ),
-            ],
-          );
-        });
-  }
-
-  //function called when we click the back button
-  Future<bool> _onWillPop() async {
-    //widget.showBanner();
-    return true;
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class BorderedText extends StatefulWidget {
   final TextEditingController textController;
-  final int id;
+  final String hintText;
   final double fontSize;
   final FontWeight fontWeight;
   final double strokeWidth;
@@ -11,7 +11,7 @@ class BorderedText extends StatefulWidget {
 
   BorderedText({
     @required this.textController,
-    @required this.id,
+    @required this.hintText,
     this.fontSize,
     this.fontWeight,
     this.strokeWidth,
@@ -45,7 +45,7 @@ class _BorderedTextState extends State<BorderedText> {
           controller: widget.textController,
           decoration: InputDecoration(
             border: InputBorder.none,
-            hintText: 'Text ${widget.id}',
+            hintText: widget.hintText,
             hintStyle: TextStyle(
               color: Colors.blueGrey,
             ),

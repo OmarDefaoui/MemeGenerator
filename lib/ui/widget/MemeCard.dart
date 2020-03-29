@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:meme_generator/database/DBHelper.dart';
 import 'package:meme_generator/model/MemeModel.dart';
 import 'package:meme_generator/ui/screens/ImageCreatorScreen.dart';
+import 'package:provider/provider.dart';
 
 //card where we display memes in template and favorite screen
 class MemeCard extends StatelessWidget {
@@ -42,7 +44,10 @@ class MemeCard extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ImageCreatorScreen(memeModel: memeModel),
+                    builder: (context) => ChangeNotifierProvider<DBHelper>(
+                      create: (context) => DBHelper(),
+                      child: ImageCreatorScreen(memeModel: memeModel),
+                    ),
                   ),
                 );
               },
